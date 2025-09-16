@@ -19,26 +19,8 @@ const Header = () => {
           </p>
         </div>
         
-        <div className="header-actions">
-          <div className="user-info">
-            <div className="user-avatar">
-              {user?.profile?.name?.charAt(0) || 'U'}
-            </div>
-            <div className="user-details">
-              <span className="user-name">{user?.profile?.name || 'User'}</span>
-              <span className="user-role">
-                {user?.role === 'hr' ? 'Human Resources' : 'Employee'} • {user?.profile?.employeeId}
-              </span>
-            </div>
-          </div>
-          
-          <div className="header-divider"></div>
-          
-          <Button variant="outline" onClick={handleLogout} className="logout-btn">
-            Logout
-          </Button>
+       
         </div>
-      </div>
     </header>
   );
 };

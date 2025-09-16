@@ -92,7 +92,7 @@
 
 /* Header Styles */
 .header {
-  background-color: var(--color-surface);
+  background-color: #be4b4b;
   border-bottom: 1px solid var(--color-border);
   padding: 0 var(--spacing-lg);
   height: 70px;
@@ -176,6 +176,7 @@
 
 .logout-btn {
   font-size: var(--font-size-sm);
+  color:antiquewhite
 }
 
 /* Page Container */
@@ -197,7 +198,7 @@
 .page-header h1 {
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text);
+  color: #bf6464;
   margin: 0;
   flex: 1;
 }
@@ -379,7 +380,7 @@
   align-items: center;
   margin-bottom: var(--spacing-xl);
   padding: var(--spacing-lg);
-  background-color: var(--color-surface);
+  background-color: #c55a5a;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
 }
@@ -391,6 +392,7 @@
 
 .date-filters select {
   min-width: 150px;
+  background-color:#c55a5a
 }
 
 /* Employee Management Styles */

@@ -2,6 +2,8 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import Card from '../components/Card';
+import TimeClockWidget from '../components/TimeClockWidget';
+import EmployeeStatusDashboard from '../components/EmployeeStatusDashboard';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -21,23 +23,31 @@ const Dashboard = () => {
           <h1>Welcome back, {user.profile.name}!</h1>
           <p>Employee Dashboard</p>
         </div>
-        
-        <div className="stats-grid">
-          <Card title="My Department">
-            <div className="stat-value">{user.profile.department}</div>
-          </Card>
-          
-          <Card title="My Position">
-            <div className="stat-value">{user.profile.position}</div>
-          </Card>
-          
-          <Card title="Employee ID">
-            <div className="stat-value">{user.profile.employeeId}</div>
-          </Card>
-          
-          <Card title="Join Date">
-            <div className="stat-value">{new Date(user.profile.joinDate).toLocaleDateString()}</div>
-          </Card>
+
+        <div className="dashboard-grid">
+          <div className="dashboard-main">
+            <div className="stats-grid">
+              <Card title="My Department">
+                <div className="stat-value">{user.profile.department}</div>
+              </Card>
+
+              <Card title="My Position">
+                <div className="stat-value">{user.profile.position}</div>
+              </Card>
+
+              <Card title="Employee ID">
+                <div className="stat-value">{user.profile.employeeId}</div>
+              </Card>
+
+              <Card title="Join Date">
+                <div className="stat-value">{new Date(user.profile.joinDate).toLocaleDateString()}</div>
+              </Card>
+            </div>
+          </div>
+
+          <div className="dashboard-sidebar">
+            <TimeClockWidget />
+          </div>
         </div>
       </div>
     );
@@ -49,28 +59,30 @@ const Dashboard = () => {
         <h1>Welcome to Caarapace Pulse</h1>
         <p>HR Dashboard</p>
       </div>
-      
+
       <div className="stats-grid">
         <Card title="Total Employees">
           <div className="stat-value">{stats.totalEmployees.toLocaleString()}</div>
         </Card>
-        
+
         <Card title="Employee Growth">
           <div className="stat-value stat-value--positive">
             {stats.employeeGrowth}%
             <div className="growth-indicator">📈</div>
           </div>
         </Card>
-        
+
         <Card title="Open Positions">
           <div className="stat-value">{stats.openPositions}</div>
         </Card>
-        
+
         <Card title="Pending Leaves">
           <div className="stat-value">{stats.pendingLeaves}</div>
         </Card>
       </div>
-      
+
+      <EmployeeStatusDashboard />
+
       <div className="dashboard-actions">
         <Card title="Quick Actions">
           <div className="action-buttons">

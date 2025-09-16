@@ -3,21 +3,30 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Sidebar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
 
+  const handleLogout = () => {
+    logout();
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   const employeeMenuItems = [
-    { path: '/profile', label: 'Profile', icon: '👤' },
-    { path: '/attendance', label: 'Attendance', icon: '📅' },
-    { path: '/leave-request', label: 'Leave Request', icon: '📝' },
-    { path: '/analytics', label: 'Analytics', icon: '📊' }
+    { path: '/dashboard', icon: '🏠', label: 'Dashboard' },
+    { path: '/profile', icon: '👤', label: 'Profile' },
+    { path: '/attendance', icon: '📅', label: 'Attendance' },
+    { path: '/leave-request', icon: '📝', label: 'Leave Request' },
+    { path: '/analytics', icon: '📊', label: 'Analytics' }
   ];
 
   const hrMenuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-    { path: '/employees', label: 'Employees', icon: '👥' },
-    { path: '/leave-management', label: 'Leave Management', icon: '📋' },
-    { path: '/analytics', label: 'Analytics', icon: '📊' }
+    { path: '/dashboard', icon: '🏠', label: 'Dashboard' },
+    { path: '/employees', icon: '👥', label: 'Employees' },
+    { path: '/leave-management', icon: '📋', label: 'Leave Management' },
+    { path: '/analytics', icon: '📊', label: 'Analytics' }
   ];
 
   const menuItems = user?.role === 'hr' ? hrMenuItems : employeeMenuItems;
@@ -36,13 +45,30 @@ const Sidebar = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+            className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
           >
             <span className="nav-icon">{item.icon}</span>
             <span className="nav-label">{item.label}</span>
           </Link>
         ))}
       </nav>
+
+      <div className="sidebar-footer">
+        <div className="user-info">
+          <div className="user-avatar">
+            {user?.profile?.name?.charAt(0) || 'U'}
+          </div>
+          <div className="user-details">
+            <div className="user-name">{user?.profile?.name}</div>
+            <div className="user-role">{user?.role === 'hr' ? 'HR' : 'Employee'}</div>
+          </div>
+        </div>
+
+        <button className="logout-btn" onClick={handleLogout}>
+          <span className="nav-icon">🚪</span>
+          <span className="nav-label">Logout</span>
+        </button>
+      </div>
     </div>
   );
 };
