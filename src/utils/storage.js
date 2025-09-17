@@ -114,6 +114,7 @@ export const getSampleUsers = () => [
     username: 'john.doe',
     password: 'password123',
     role: 'employee',
+    employeeId: 'EMP001',
     profile: {
       name: 'John Doe',
       employeeId: 'EMP001',
@@ -129,6 +130,7 @@ export const getSampleUsers = () => [
     username: 'jane.smith',
     password: 'password123',
     role: 'hr',
+    employeeId: 'HR001',
     profile: {
       name: 'Jane Smith',
       employeeId: 'HR001',
@@ -144,6 +146,7 @@ export const getSampleUsers = () => [
     username: 'mike.johnson',
     password: 'password123',
     role: 'employee',
+    employeeId: 'EMP002',
     profile: {
       name: 'Mike Johnson',
       employeeId: 'EMP002',
@@ -152,6 +155,38 @@ export const getSampleUsers = () => [
       phone: '+1-234-567-8903',
       joinDate: '2023-03-20',
       position: 'Marketing Specialist'
+    }
+  },
+  {
+    id: 4,
+    username: 'sarah.wilson',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP003',
+    profile: {
+      name: 'Sarah Wilson',
+      employeeId: 'EMP003',
+      department: 'Finance',
+      email: 'sarah.wilson@caarapace.com',
+      phone: '+1-234-567-8904',
+      joinDate: '2023-02-10',
+      position: 'Financial Analyst'
+    }
+  },
+  {
+    id: 5,
+    username: 'david.brown',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP004',
+    profile: {
+      name: 'David Brown',
+      employeeId: 'EMP004',
+      department: 'Engineering',
+      email: 'david.brown@caarapace.com',
+      phone: '+1-234-567-8905',
+      joinDate: '2022-08-15',
+      position: 'Senior Developer'
     }
   }
 ];
@@ -245,7 +280,7 @@ export const getSampleEmployees = () => [
 
 export const getSampleAttendance = () => {
   const attendance = [];
-  const employees = ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005', 'EMP006'];
+  const employees = ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005', 'EMP006', 'HR001'];
   const today = new Date();
   
   // Generate attendance for last 60 days
@@ -260,12 +295,24 @@ export const getSampleAttendance = () => {
     employees.forEach((empId) => {
       // 92% chance of being present
       const isPresent = Math.random() > 0.08;
+      const checkInHour = 8 + Math.floor(Math.random() * 2); // 8-9 AM
+      const checkInMinute = Math.floor(Math.random() * 60);
+      const checkOutHour = 17 + Math.floor(Math.random() * 2); // 5-6 PM
+      const checkOutMinute = Math.floor(Math.random() * 60);
+      
       const checkInTime = isPresent ? 
-        `0${8 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}` : 
+        `${checkInHour.toString().padStart(2, '0')}:${checkInMinute.toString().padStart(2, '0')}` : 
         null;
       const checkOutTime = isPresent ? 
-        `${17 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}` : 
+        `${checkOutHour.toString().padStart(2, '0')}:${checkOutMinute.toString().padStart(2, '0')}` : 
         null;
+      
+      let hoursWorked = 0;
+      if (isPresent && checkInTime && checkOutTime) {
+        const checkIn = new Date(`${dateString}T${checkInTime}`);
+        const checkOut = new Date(`${dateString}T${checkOutTime}`);
+        hoursWorked = Math.round(((checkOut - checkIn) / (1000 * 60 * 60)) * 100) / 100;
+      }
       
       attendance.push({
         id: `${empId}_${dateString}`,
@@ -274,7 +321,7 @@ export const getSampleAttendance = () => {
         status: isPresent ? 'Present' : 'Absent',
         checkIn: checkInTime,
         checkOut: checkOutTime,
-        hoursWorked: isPresent ? 8 + (Math.random() * 2 - 1) : 0,
+        hoursWorked: hoursWorked,
         breakTime: isPresent ? 1 : 0
       });
     });
@@ -377,7 +424,7 @@ export const LEAVE_STATUSES = [
   'Rejected'
 ];
 
-// Helper Functions
+// Helper Functions for Employee Management
 export const getEmployeeById = (employeeId) => {
   const employees = getEmployees();
   return employees.find(emp => emp.employeeId === employeeId);
@@ -393,11 +440,22 @@ export const getLeaveRequestsByEmployee = (employeeId) => {
   return leaveRequests.filter(request => request.employeeId === employeeId);
 };
 
+export const getUserByEmployeeId = (employeeId) => {
+  const users = getUsers();
+  return users.find(user => user.employeeId === employeeId);
+};
+
+export const getUserByUsername = (username) => {
+  const users = getUsers();
+  return users.find(user => user.username === username);
+};
+
+// Employee CRUD Operations
 export const addEmployee = (employee) => {
   const employees = getEmployees();
   const newEmployee = {
     ...employee,
-    id: Math.max(...employees.map(e => e.id), 0) + 1,
+    id: Math.max(...employees.map(e => e.id || 0), 0) + 1,
     status: employee.status || 'Active'
   };
   employees.push(newEmployee);
@@ -416,11 +474,49 @@ export const updateEmployee = (employeeId, updates) => {
   return null;
 };
 
+export const deleteEmployee = (employeeId) => {
+  const employees = getEmployees();
+  const updatedEmployees = employees.filter(emp => emp.employeeId !== employeeId);
+  setEmployees(updatedEmployees);
+  return true;
+};
+
+// User Account CRUD Operations
+export const addUser = (userData) => {
+  const users = getUsers();
+  const newUser = {
+    ...userData,
+    id: Math.max(...users.map(u => u.id || 0), 0) + 1
+  };
+  users.push(newUser);
+  setUsers(users);
+  return newUser;
+};
+
+export const updateUser = (employeeId, updates) => {
+  const users = getUsers();
+  const index = users.findIndex(user => user.employeeId === employeeId);
+  if (index !== -1) {
+    users[index] = { ...users[index], ...updates };
+    setUsers(users);
+    return users[index];
+  }
+  return null;
+};
+
+export const deleteUser = (employeeId) => {
+  const users = getUsers();
+  const updatedUsers = users.filter(user => user.employeeId !== employeeId);
+  setUsers(updatedUsers);
+  return true;
+};
+
+// Leave Request CRUD Operations
 export const addLeaveRequest = (leaveRequest) => {
   const leaveRequests = getLeaveRequests();
   const newRequest = {
     ...leaveRequest,
-    id: Math.max(...leaveRequests.map(r => r.id), 0) + 1,
+    id: Math.max(...leaveRequests.map(r => r.id || 0), 0) + 1,
     status: 'Pending',
     appliedDate: new Date().toISOString().split('T')[0],
     hrComments: '',
@@ -443,13 +539,214 @@ export const updateLeaveRequest = (requestId, updates) => {
   return null;
 };
 
+export const deleteLeaveRequest = (requestId) => {
+  const leaveRequests = getLeaveRequests();
+  const updatedRequests = leaveRequests.filter(req => req.id !== requestId);
+  setLeaveRequests(updatedRequests);
+  return true;
+};
+
+// Attendance CRUD Operations
 export const addAttendanceRecord = (attendanceRecord) => {
   const attendance = getAttendance();
   const newRecord = {
     ...attendanceRecord,
     id: `${attendanceRecord.employeeId}_${attendanceRecord.date}`
   };
-  attendance.push(newRecord);
+  
+  // Check if record already exists
+  const existingIndex = attendance.findIndex(record => record.id === newRecord.id);
+  if (existingIndex !== -1) {
+    // Update existing record
+    attendance[existingIndex] = newRecord;
+  } else {
+    // Add new record
+    attendance.push(newRecord);
+  }
+  
   setAttendance(attendance);
   return newRecord;
+};
+
+export const updateAttendanceRecord = (recordId, updates) => {
+  const attendance = getAttendance();
+  const index = attendance.findIndex(record => record.id === recordId);
+  if (index !== -1) {
+    attendance[index] = { ...attendance[index], ...updates };
+    setAttendance(attendance);
+    return attendance[index];
+  }
+  return null;
+};
+
+export const deleteAttendanceRecord = (recordId) => {
+  const attendance = getAttendance();
+  const updatedAttendance = attendance.filter(record => record.id !== recordId);
+  setAttendance(updatedAttendance);
+  return true;
+};
+
+// Bulk Operations
+export const deleteAllEmployeeRecords = (employeeId) => {
+  // Delete employee
+  deleteEmployee(employeeId);
+  
+  // Delete user account
+  deleteUser(employeeId);
+  
+  // Delete all attendance records
+  const attendance = getAttendance();
+  const updatedAttendance = attendance.filter(record => record.employeeId !== employeeId);
+  setAttendance(updatedAttendance);
+  
+  // Delete all leave requests
+  const leaveRequests = getLeaveRequests();
+  const updatedLeaveRequests = leaveRequests.filter(request => request.employeeId !== employeeId);
+  setLeaveRequests(updatedLeaveRequests);
+  
+  return true;
+};
+
+// Statistics and Analytics Functions
+export const getEmployeeStatistics = () => {
+  const employees = getEmployees();
+  const users = getUsers();
+  const attendance = getAttendance();
+  const leaveRequests = getLeaveRequests();
+  
+  return {
+    totalEmployees: employees.length,
+    activeEmployees: employees.filter(emp => emp.status === 'Active').length,
+    totalUsers: users.length,
+    employeeUsers: users.filter(user => user.role === 'employee').length,
+    hrUsers: users.filter(user => user.role === 'hr').length,
+    totalAttendanceRecords: attendance.length,
+    totalLeaveRequests: leaveRequests.length,
+    pendingLeaveRequests: leaveRequests.filter(req => req.status === 'Pending').length,
+    approvedLeaveRequests: leaveRequests.filter(req => req.status === 'Approved').length,
+    rejectedLeaveRequests: leaveRequests.filter(req => req.status === 'Rejected').length
+  };
+};
+
+export const getDepartmentStatistics = () => {
+  const employees = getEmployees();
+  const departmentStats = {};
+  
+  employees.forEach(employee => {
+    const dept = employee.department;
+    if (!departmentStats[dept]) {
+      departmentStats[dept] = {
+        totalEmployees: 0,
+        activeEmployees: 0,
+        averageSalary: 0,
+        totalSalary: 0
+      };
+    }
+    
+    departmentStats[dept].totalEmployees++;
+    if (employee.status === 'Active') {
+      departmentStats[dept].activeEmployees++;
+    }
+    if (employee.salary) {
+      departmentStats[dept].totalSalary += employee.salary;
+    }
+  });
+  
+  // Calculate average salaries
+  Object.keys(departmentStats).forEach(dept => {
+    const stats = departmentStats[dept];
+    if (stats.totalEmployees > 0) {
+      stats.averageSalary = Math.round(stats.totalSalary / stats.totalEmployees);
+    }
+  });
+  
+  return departmentStats;
+};
+
+// Data Validation Functions
+export const validateEmployeeData = (employeeData) => {
+  const errors = {};
+  
+  if (!employeeData.name || employeeData.name.trim().length === 0) {
+    errors.name = 'Name is required';
+  }
+  
+  if (!employeeData.employeeId || employeeData.employeeId.trim().length === 0) {
+    errors.employeeId = 'Employee ID is required';
+  }
+  
+  if (!employeeData.email || employeeData.email.trim().length === 0) {
+    errors.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employeeData.email)) {
+    errors.email = 'Invalid email format';
+  }
+  
+  if (!employeeData.department) {
+    errors.department = 'Department is required';
+  }
+  
+  if (!employeeData.position || employeeData.position.trim().length === 0) {
+    errors.position = 'Position is required';
+  }
+  
+  return errors;
+};
+
+export const validateUserData = (userData) => {
+  const errors = {};
+  
+  if (!userData.username || userData.username.trim().length === 0) {
+    errors.username = 'Username is required';
+  }
+  
+  if (!userData.password || userData.password.length < 6) {
+    errors.password = 'Password must be at least 6 characters';
+  }
+  
+  if (!userData.employeeId || userData.employeeId.trim().length === 0) {
+    errors.employeeId = 'Employee ID is required';
+  }
+  
+  return errors;
+};
+
+// Data Migration and Backup Functions
+export const exportAllData = () => {
+  return {
+    users: getUsers(),
+    employees: getEmployees(),
+    attendance: getAttendance(),
+    leaveRequests: getLeaveRequests(),
+    exportDate: new Date().toISOString(),
+    version: '1.0'
+  };
+};
+
+export const importAllData = (data) => {
+  try {
+    if (data.users) setUsers(data.users);
+    if (data.employees) setEmployees(data.employees);
+    if (data.attendance) setAttendance(data.attendance);
+    if (data.leaveRequests) setLeaveRequests(data.leaveRequests);
+    return true;
+  } catch (error) {
+    console.error('Error importing data:', error);
+    return false;
+  }
+};
+
+// Initialize sample data if not exists
+export const initializeSampleData = () => {
+  if (!getItem(STORAGE_KEYS.USERS)) {
+    setUsers(getSampleUsers());
+  }
+  if (!getItem(STORAGE_KEYS.EMPLOYEES)) {
+    setEmployees(getSampleEmployees());
+  }
+  if (!getItem(STORAGE_KEYS.ATTENDANCE)) {
+    setAttendance(getSampleAttendance());
+  }
+  if (!getItem(STORAGE_KEYS.LEAVE_REQUESTS)) {
+    setLeaveRequests(getSampleLeaveRequests());
+  }
 };

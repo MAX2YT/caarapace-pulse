@@ -6,6 +6,8 @@ import {
   setAttendance,
   getLeaveRequests,
   setLeaveRequests,
+  getUsers,
+  setUsers,
   addEmployee as addEmployeeToStorage,
   addLeaveRequest as addLeaveRequestToStorage,
   updateLeaveRequest as updateLeaveRequestInStorage
@@ -25,19 +27,132 @@ export const DataProvider = ({ children }) => {
   const [employees, setEmployeesState] = useState([]);
   const [attendance, setAttendanceState] = useState([]);
   const [leaveRequests, setLeaveRequestsState] = useState([]);
-  const [refreshTrigger, setRefreshTrigger] = useState(0); // Add this to force re-renders
+  const [users, setUsersState] = useState([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     // Load initial data
     setEmployeesState(getEmployees());
     setAttendanceState(getAttendance());
     setLeaveRequestsState(getLeaveRequests());
+    setUsersState(getUsers());
   }, []);
 
   // Force refresh function
   const forceRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
+    setEmployeesState(getEmployees());
     setAttendanceState(getAttendance());
+    setLeaveRequestsState(getLeaveRequests());
+    setUsersState(getUsers());
+  };
+
+  // User Management Functions
+  const addUser = (userData) => {
+    try {
+      const currentUsers = getUsers();
+      const newUser = {
+        ...userData,
+        id: Math.max(...currentUsers.map(u => u.id || 0), 0) + 1
+      };
+
+      const updatedUsers = [...currentUsers, newUser];
+      setUsers(updatedUsers);
+      setUsersState(updatedUsers);
+
+      return newUser;
+    } catch (error) {
+      console.error('Error adding user:', error);
+      throw error;
+    }
+  };
+
+  const updateUser = (employeeId, userData) => {
+    try {
+      const currentUsers = getUsers();
+      const updatedUsers = currentUsers.map(user => 
+        user.employeeId === employeeId ? { ...user, ...userData } : user
+      );
+
+      setUsers(updatedUsers);
+      setUsersState(updatedUsers);
+
+      return updatedUsers.find(user => user.employeeId === employeeId);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  };
+
+  const deleteUser = (employeeId) => {
+    try {
+      const currentUsers = getUsers();
+      const updatedUsers = currentUsers.filter(user => user.employeeId !== employeeId);
+
+      setUsers(updatedUsers);
+      setUsersState(updatedUsers);
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  };
+
+  // Employee Management Functions
+  const addEmployee = (employeeData) => {
+    try {
+      const newEmployee = addEmployeeToStorage(employeeData);
+      setEmployeesState(getEmployees());
+      return newEmployee;
+    } catch (error) {
+      console.error('Error adding employee:', error);
+      throw error;
+    }
+  };
+
+  const updateEmployee = (employeeId, employeeData) => {
+    try {
+      const currentEmployees = getEmployees();
+      const updatedEmployees = currentEmployees.map(emp => 
+        emp.employeeId === employeeId ? { ...emp, ...employeeData } : emp
+      );
+
+      setEmployees(updatedEmployees);
+      setEmployeesState(updatedEmployees);
+
+      return updatedEmployees.find(emp => emp.employeeId === employeeId);
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      throw error;
+    }
+  };
+
+  const deleteEmployee = (employeeId) => {
+    try {
+      // Delete employee
+      const currentEmployees = getEmployees();
+      const updatedEmployees = currentEmployees.filter(emp => emp.employeeId !== employeeId);
+      setEmployees(updatedEmployees);
+      setEmployeesState(updatedEmployees);
+
+      // Delete all attendance records for this employee
+      const currentAttendance = getAttendance();
+      const updatedAttendance = currentAttendance.filter(record => record.employeeId !== employeeId);
+      setAttendance(updatedAttendance);
+      setAttendanceState(updatedAttendance);
+
+      // Delete all leave requests for this employee
+      const currentLeaveRequests = getLeaveRequests();
+      const updatedLeaveRequests = currentLeaveRequests.filter(request => request.employeeId !== employeeId);
+      setLeaveRequests(updatedLeaveRequests);
+      setLeaveRequestsState(updatedLeaveRequests);
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+      throw error;
+    }
   };
 
   // Check-in functionality
@@ -67,7 +182,7 @@ export const DataProvider = ({ children }) => {
         record = {
           ...existingRecord,
           checkIn: currentTime,
-          checkOut: null, // Clear check out time
+          checkOut: null,
           status: 'Present',
           hoursWorked: 0
         };
@@ -153,7 +268,7 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Get current status for an employee - now with fresh data
+  // Get current status for an employee
   const getCurrentStatus = (employeeId) => {
     const today = new Date().toISOString().split('T')[0];
 
@@ -162,8 +277,6 @@ export const DataProvider = ({ children }) => {
     const todayRecord = freshAttendance.find(
       record => record.employeeId === employeeId && record.date === today
     );
-
-    console.log('getCurrentStatus for', employeeId, 'today record:', todayRecord);
 
     return {
       isCheckedIn: todayRecord && todayRecord.checkIn && !todayRecord.checkOut,
@@ -192,12 +305,6 @@ export const DataProvider = ({ children }) => {
     });
   };
 
-  const addEmployee = (employeeData) => {
-    const newEmployee = addEmployeeToStorage(employeeData);
-    setEmployeesState(getEmployees());
-    return newEmployee;
-  };
-
   const addLeaveRequest = (requestData) => {
     const newRequest = addLeaveRequestToStorage(requestData);
     setLeaveRequestsState(getLeaveRequests());
@@ -214,14 +321,20 @@ export const DataProvider = ({ children }) => {
     employees,
     attendance,
     leaveRequests,
+    users,
     checkIn,
     checkOut,
     getCurrentStatus,
     getAllEmployeeStatuses,
     addEmployee,
+    updateEmployee,
+    deleteEmployee,
+    addUser,
+    updateUser,
+    deleteUser,
     addLeaveRequest,
     updateLeaveRequest,
-    refreshTrigger // Expose this so components can listen to changes
+    refreshTrigger
   };
 
   return (

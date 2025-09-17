@@ -53,9 +53,9 @@ const LoginForm = () => {
         <div className="login-header">
           <div className="logo">
             <span className="logo-icon">🦀</span>
-            <h1>Caarapace Pulse</h1>
+            <h1>Geotech Geospatial</h1>
           </div>
-          <p>Employee Management System</p>
+          <p>Employee Management System By Pulse</p>
         </div>
         
         <div className="login-tabs">
