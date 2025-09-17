@@ -1,8 +1,8 @@
 // src/utils/storage.js
 
 /**
- * Simple, working storage utility for Caarapace Pulse
- * This version focuses on making the basic CRUD operations work reliably
+ * Storage utility functions for Caarapace Pulse Employee Management System
+ * Handles localStorage operations for users, employees, attendance, and leave requests
  */
 
 export const STORAGE_KEYS = {
@@ -13,13 +13,13 @@ export const STORAGE_KEYS = {
   LEAVE_REQUESTS: 'caarapace_leave_requests'
 };
 
-// Generic localStorage functions
-export const getItem = (key) => {
+// Generic localStorage helpers
+export const getItem = key => {
   try {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : null;
-  } catch (error) {
-    console.error(`Error getting ${key} from localStorage:`, error);
+  } catch (err) {
+    console.error(`Error reading ${key} from localStorage`, err);
     return null;
   }
 };
@@ -27,78 +27,71 @@ export const getItem = (key) => {
 export const setItem = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-    console.log(`✅ Stored ${key}:`, value);
     return true;
-  } catch (error) {
-    console.error(`Error setting ${key} in localStorage:`, error);
+  } catch (err) {
+    console.error(`Error writing ${key} to localStorage`, err);
     return false;
   }
 };
 
-// User Functions
+// USER FUNCTIONS
+
 export const getUsers = () => {
   let users = getItem(STORAGE_KEYS.USERS);
   if (!users) {
     users = getSampleUsers();
     setUsers(users);
   }
-  console.log('📚 Getting users:', users);
   return users;
 };
 
-export const setUsers = (users) => {
-  console.log('💾 Setting users:', users);
-  return setItem(STORAGE_KEYS.USERS, users);
-};
+export const setUsers = users => setItem(STORAGE_KEYS.USERS, users);
 
-// Employee Functions
-export const getEmployees = () => {
-  let employees = getItem(STORAGE_KEYS.EMPLOYEES);
-  if (!employees) {
-    employees = getSampleEmployees();
-    setEmployees(employees);
-  }
-  console.log('📚 Getting employees:', employees);
-  return employees;
-};
-
-export const setEmployees = (employees) => {
-  console.log('💾 Setting employees:', employees);
-  return setItem(STORAGE_KEYS.EMPLOYEES, employees);
-};
-
-// Attendance Functions
-export const getAttendance = () => {
-  let attendance = getItem(STORAGE_KEYS.ATTENDANCE);
-  if (!attendance) {
-    attendance = getSampleAttendance();
-    setAttendance(attendance);
-  }
-  return attendance;
-};
-
-export const setAttendance = (attendance) => setItem(STORAGE_KEYS.ATTENDANCE, attendance);
-
-// Leave Request Functions
-export const getLeaveRequests = () => {
-  let leaveRequests = getItem(STORAGE_KEYS.LEAVE_REQUESTS);
-  if (!leaveRequests) {
-    leaveRequests = getSampleLeaveRequests();
-    setLeaveRequests(leaveRequests);
-  }
-  return leaveRequests;
-};
-
-export const setLeaveRequests = (leaveRequests) => setItem(STORAGE_KEYS.LEAVE_REQUESTS, leaveRequests);
-
-// Current User Functions
 export const getCurrentUser = () => getItem(STORAGE_KEYS.CURRENT_USER);
-export const setCurrentUser = (user) => setItem(STORAGE_KEYS.CURRENT_USER, user);
-export const clearCurrentUser = () => {
-  localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+export const setCurrentUser = user => setItem(STORAGE_KEYS.CURRENT_USER, user);
+export const clearCurrentUser = () => localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+
+// EMPLOYEE FUNCTIONS
+
+export const getEmployees = () => {
+  let emps = getItem(STORAGE_KEYS.EMPLOYEES);
+  if (!emps) {
+    emps = getSampleEmployees();
+    setEmployees(emps);
+  }
+  return emps;
 };
 
-// Sample Data
+export const setEmployees = emps => setItem(STORAGE_KEYS.EMPLOYEES, emps);
+
+// ATTENDANCE FUNCTIONS
+
+export const getAttendance = () => {
+  let att = getItem(STORAGE_KEYS.ATTENDANCE);
+  if (!att) {
+    att = getSampleAttendance();
+    setAttendance(att);
+  }
+  return att;
+};
+
+export const setAttendance = att => setItem(STORAGE_KEYS.ATTENDANCE, att);
+
+// LEAVE REQUEST FUNCTIONS
+
+export const getLeaveRequests = () => {
+  let lr = getItem(STORAGE_KEYS.LEAVE_REQUESTS);
+  if (!lr) {
+    lr = getSampleLeaveRequests();
+    setLeaveRequests(lr);
+  }
+  return lr;
+};
+
+export const setLeaveRequests = lr => setItem(STORAGE_KEYS.LEAVE_REQUESTS, lr);
+
+// SAMPLE DATA GENERATORS
+
 export const getSampleUsers = () => [
   {
     id: 1,
@@ -110,10 +103,11 @@ export const getSampleUsers = () => [
       name: 'John Doe',
       employeeId: 'EMP001',
       department: 'Engineering',
+      position: 'Software Engineer',
       email: 'john.doe@caarapace.com',
       phone: '+1-234-567-8901',
       joinDate: '2023-01-15',
-      position: 'Software Engineer'
+      reportingInCharge: 'EMP004'
     }
   },
   {
@@ -126,10 +120,11 @@ export const getSampleUsers = () => [
       name: 'Jane Smith',
       employeeId: 'HR001',
       department: 'Human Resources',
+      position: 'HR Manager',
       email: 'jane.smith@caarapace.com',
       phone: '+1-234-567-8902',
       joinDate: '2022-05-10',
-      position: 'HR Manager'
+      reportingInCharge: ''
     }
   },
   {
@@ -142,10 +137,45 @@ export const getSampleUsers = () => [
       name: 'Mike Johnson',
       employeeId: 'EMP002',
       department: 'Marketing',
+      position: 'Marketing Specialist',
       email: 'mike.johnson@caarapace.com',
       phone: '+1-234-567-8903',
       joinDate: '2023-03-20',
-      position: 'Marketing Specialist'
+      reportingInCharge: 'EMP005'
+    }
+  },
+  {
+    id: 4,
+    username: 'sarah.wilson',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP003',
+    profile: {
+      name: 'Sarah Wilson',
+      employeeId: 'EMP003',
+      department: 'Finance',
+      position: 'Financial Analyst',
+      email: 'sarah.wilson@caarapace.com',
+      phone: '+1-234-567-8904',
+      joinDate: '2023-02-10',
+      reportingInCharge: 'EMP006'
+    }
+  },
+  {
+    id: 5,
+    username: 'david.brown',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP004',
+    profile: {
+      name: 'David Brown',
+      employeeId: 'EMP004',
+      department: 'Engineering',
+      position: 'Senior Developer',
+      email: 'david.brown@caarapace.com',
+      phone: '+1-234-567-8905',
+      joinDate: '2022-08-15',
+      reportingInCharge: 'HR001'
     }
   }
 ];
@@ -156,230 +186,189 @@ export const getSampleEmployees = () => [
     name: 'John Doe',
     employeeId: 'EMP001',
     department: 'Engineering',
+    position: 'Software Engineer',
     email: 'john.doe@caarapace.com',
     phone: '+1-234-567-8901',
-    position: 'Software Engineer',
     joinDate: '2023-01-15',
     status: 'Active',
-    salary: 75000
+    reportingInCharge: 'EMP004'
   },
   {
     id: 2,
     name: 'Jane Smith',
     employeeId: 'HR001',
     department: 'Human Resources',
+    position: 'HR Manager',
     email: 'jane.smith@caarapace.com',
     phone: '+1-234-567-8902',
-    position: 'HR Manager',
     joinDate: '2022-05-10',
     status: 'Active',
-    salary: 85000
+    reportingInCharge: ''
   },
   {
     id: 3,
     name: 'Mike Johnson',
     employeeId: 'EMP002',
     department: 'Marketing',
+    position: 'Marketing Specialist',
     email: 'mike.johnson@caarapace.com',
     phone: '+1-234-567-8903',
-    position: 'Marketing Specialist',
     joinDate: '2023-03-20',
     status: 'Active',
-    salary: 65000
+    reportingInCharge: 'EMP005'
   },
   {
     id: 4,
     name: 'Sarah Wilson',
     employeeId: 'EMP003',
     department: 'Finance',
+    position: 'Financial Analyst',
     email: 'sarah.wilson@caarapace.com',
     phone: '+1-234-567-8904',
-    position: 'Financial Analyst',
     joinDate: '2023-02-10',
     status: 'Active',
-    salary: 70000
+    reportingInCharge: 'EMP006'
   },
   {
     id: 5,
     name: 'David Brown',
     employeeId: 'EMP004',
     department: 'Engineering',
+    position: 'Senior Developer',
     email: 'david.brown@caarapace.com',
     phone: '+1-234-567-8905',
-    position: 'Senior Developer',
     joinDate: '2022-08-15',
     status: 'Active',
-    salary: 90000
+    reportingInCharge: 'HR001'
   }
 ];
 
 export const getSampleAttendance = () => {
   const attendance = [];
-  const employees = ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'HR001'];
+  const employees = ['EMP001','EMP002','EMP003','EMP004','HR001'];
   const today = new Date();
-
-  for (let i = 0; i < 30; i++) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const dateString = date.toISOString().split('T')[0];
-
-    if (date.getDay() === 0 || date.getDay() === 6) continue;
-
-    employees.forEach((empId) => {
-      const isPresent = Math.random() > 0.1;
-      const checkInTime = isPresent ? `0${8 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}` : null;
-      const checkOutTime = isPresent ? `${17 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}` : null;
-
+  for (let i=0; i<30; i++){
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    if ([0,6].includes(d.getDay())) continue;
+    const ds = d.toISOString().split('T')[0];
+    employees.forEach(empId => {
+      const present = Math.random()>0.1;
       attendance.push({
-        id: `${empId}_${dateString}`,
+        id:`${empId}_${ds}`,
         employeeId: empId,
-        date: dateString,
-        status: isPresent ? 'Present' : 'Absent',
-        checkIn: checkInTime,
-        checkOut: checkOutTime,
-        hoursWorked: isPresent ? 8 + (Math.random() * 2 - 1) : 0,
-        breakTime: isPresent ? 1 : 0
+        date: ds,
+        status: present?'Present':'Absent',
+        checkIn: present?`0${8+Math.floor(Math.random()*2)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`:null,
+        checkOut: present?`${17+Math.floor(Math.random()*2)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`:null,
+        hoursWorked: present?8:(0),
+        breakTime: present?1:0
       });
     });
   }
-
-  return attendance.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return attendance.sort((a,b)=>new Date(b.date)-new Date(a.date));
 };
 
 export const getSampleLeaveRequests = () => [
   {
-    id: 1,
-    employeeId: 'EMP001',
-    employeeName: 'John Doe',
-    leaveType: 'Annual Leave',
-    startDate: '2025-09-25',
-    endDate: '2025-09-27',
-    reason: 'Family vacation',
-    status: 'Pending',
-    appliedDate: '2025-09-10',
-    hrComments: '',
-    approvedBy: '',
-    approvedDate: ''
+    id:1,
+    employeeId:'EMP001',
+    employeeName:'John Doe',
+    leaveType:'Annual Leave',
+    startDate:'2025-09-25',
+    endDate:'2025-09-27',
+    reason:'Family vacation',
+    status:'Pending',
+    appliedDate:'2025-09-10',
+    hrComments:'',
+    approvedBy:'',
+    approvedDate:''
   },
   {
-    id: 2,
-    employeeId: 'EMP002',
-    employeeName: 'Mike Johnson',
-    leaveType: 'Sick Leave',
-    startDate: '2025-09-20',
-    endDate: '2025-09-22',
-    reason: 'Medical appointment',
-    status: 'Approved',
-    appliedDate: '2025-09-08',
-    hrComments: 'Approved',
-    approvedBy: 'Jane Smith',
-    approvedDate: '2025-09-09'
+    id:2,
+    employeeId:'EMP002',
+    employeeName:'Mike Johnson',
+    leaveType:'Sick Leave',
+    startDate:'2025-09-20',
+    endDate:'2025-09-22',
+    reason:'Medical appointment',
+    status:'Approved',
+    appliedDate:'2025-09-08',
+    hrComments:'Approved',
+    approvedBy:'Jane Smith',
+    approvedDate:'2025-09-09'
   }
 ];
 
-// Helper Functions - These are the ones being called by your components
-export const addEmployee = (employee) => {
-  console.log('🔄 Storage: Adding employee:', employee);
-  const employees = getEmployees();
-  const newEmployee = {
-    ...employee,
-    id: Math.max(...employees.map(e => e.id || 0), 0) + 1
-  };
-  employees.push(newEmployee);
-  const success = setEmployees(employees);
-  console.log('✅ Storage: Employee added, success:', success);
-  return newEmployee;
+// CRUD OPERATIONS
+
+export const addEmployee = employee => {
+  const emps = getEmployees();
+  const newEmp = { ...employee, id: Math.max(...emps.map(e=>e.id),0)+1 };
+  emps.push(newEmp);
+  setEmployees(emps);
+  return newEmp;
 };
 
-export const updateEmployee = (employeeId, updates) => {
-  console.log('🔄 Storage: Updating employee:', employeeId, updates);
-  const employees = getEmployees();
-  const index = employees.findIndex(emp => emp.employeeId === employeeId);
-  if (index !== -1) {
-    employees[index] = { ...employees[index], ...updates };
-    const success = setEmployees(employees);
-    console.log('✅ Storage: Employee updated, success:', success);
-    return employees[index];
+export const updateEmployee = (eid, updates) => {
+  const emps = getEmployees();
+  const idx = emps.findIndex(e=>e.employeeId===eid);
+  if(idx>-1){
+    emps[idx] = { ...emps[idx], ...updates };
+    setEmployees(emps);
+    return emps[idx];
   }
-  console.log('❌ Storage: Employee not found for update');
   return null;
 };
 
-export const deleteEmployee = (employeeId) => {
-  console.log('🔄 Storage: Deleting employee:', employeeId);
-  const employees = getEmployees();
-  const filtered = employees.filter(emp => emp.employeeId !== employeeId);
-  const success = setEmployees(filtered);
-  console.log('✅ Storage: Employee deleted, success:', success);
-
-  // Also clean up related data
-  const attendance = getAttendance();
-  const filteredAttendance = attendance.filter(record => record.employeeId !== employeeId);
-  setAttendance(filteredAttendance);
-
-  const leaveRequests = getLeaveRequests();
-  const filteredLeaveRequests = leaveRequests.filter(req => req.employeeId !== employeeId);
-  setLeaveRequests(filteredLeaveRequests);
-
+export const deleteEmployee = eid => {
+  const emps = getEmployees().filter(e=>e.employeeId!==eid);
+  setEmployees(emps);
+  // clean related records
+  setAttendance(getAttendance().filter(r=>r.employeeId!==eid));
+  setLeaveRequests(getLeaveRequests().filter(r=>r.employeeId!==eid));
   return true;
 };
 
-export const addUser = (userData) => {
-  console.log('🔄 Storage: Adding user:', userData);
-  const users = getUsers();
-  const newUser = {
-    ...userData,
-    id: Math.max(...users.map(u => u.id || 0), 0) + 1
-  };
-  users.push(newUser);
-  const success = setUsers(users);
-  console.log('✅ Storage: User added, success:', success);
-  return newUser;
+export const addUser = user => {
+  const us = getUsers();
+  const newU = { ...user, id: Math.max(...us.map(u=>u.id),0)+1 };
+  us.push(newU);
+  setUsers(us);
+  return newU;
 };
 
-export const updateUser = (employeeId, updates) => {
-  console.log('🔄 Storage: Updating user:', employeeId, updates);
-  const users = getUsers();
-  const index = users.findIndex(user => user.employeeId === employeeId);
-  if (index !== -1) {
-    users[index] = { ...users[index], ...updates };
-    const success = setUsers(users);
-    console.log('✅ Storage: User updated, success:', success);
-    return users[index];
+export const updateUser = (eid, updates) => {
+  const us = getUsers();
+  const idx = us.findIndex(u=>u.employeeId===eid);
+  if(idx>-1){
+    us[idx] = { ...us[idx], ...updates };
+    setUsers(us);
+    return us[idx];
   }
-  console.log('❌ Storage: User not found for update');
   return null;
 };
 
-export const deleteUser = (employeeId) => {
-  console.log('🔄 Storage: Deleting user:', employeeId);
-  const users = getUsers();
-  const filtered = users.filter(user => user.employeeId !== employeeId);
-  const success = setUsers(filtered);
-  console.log('✅ Storage: User deleted, success:', success);
+export const deleteUser = eid => {
+  const us = getUsers().filter(u=>u.employeeId!==eid);
+  setUsers(us);
   return true;
 };
 
-export const addLeaveRequest = (leaveRequest) => {
-  const leaveRequests = getLeaveRequests();
-  const newRequest = {
-    ...leaveRequest,
-    id: Math.max(...leaveRequests.map(r => r.id || 0), 0) + 1,
-    status: 'Pending',
-    appliedDate: new Date().toISOString().split('T')[0]
-  };
-  leaveRequests.push(newRequest);
-  setLeaveRequests(leaveRequests);
-  return newRequest;
+export const addLeaveRequest = lr => {
+  const lrs = getSampleLeaveRequests();
+  const newLR = { ...lr, id: Math.max(...lrs.map(r=>r.id),0)+1 };
+  lrs.push(newLR);
+  setLeaveRequests(lrs);
+  return newLR;
 };
 
-export const updateLeaveRequest = (requestId, updates) => {
-  const leaveRequests = getLeaveRequests();
-  const index = leaveRequests.findIndex(req => req.id === requestId);
-  if (index !== -1) {
-    leaveRequests[index] = { ...leaveRequests[index], ...updates };
-    setLeaveRequests(leaveRequests);
-    return leaveRequests[index];
+export const updateLeaveRequest = (rid, updates) => {
+  const lrs = getLeaveRequests();
+  const idx = lrs.findIndex(r=>r.id===rid);
+  if(idx>-1){
+    lrs[idx] = { ...lrs[idx], ...updates };
+    setLeaveRequests(lrs);
+    return lrs[idx];
   }
   return null;
 };

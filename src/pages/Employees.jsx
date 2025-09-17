@@ -30,7 +30,7 @@ const Employees = () => {
     email: '',
     phone: '',
     joinDate: '',
-    salary: '',
+    reportingInCharge: '', // Changed from salary
     username: '',
     password: ''
   });
@@ -49,6 +49,14 @@ const Employees = () => {
     emp.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Get list of potential reporting managers (existing employees)
+  const getReportingManagers = () => {
+    return employees.filter(emp => 
+      // Don't include the employee being edited in their own reporting manager list
+      editingEmployee ? emp.employeeId !== editingEmployee.employeeId : true
+    );
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -58,7 +66,7 @@ const Employees = () => {
       email: '',
       phone: '',
       joinDate: '',
-      salary: '',
+      reportingInCharge: '', // Changed from salary
       username: '',
       password: ''
     });
@@ -105,7 +113,7 @@ const Employees = () => {
       email: employee.email || '',
       phone: employee.phone || '',
       joinDate: employee.joinDate || '',
-      salary: employee.salary?.toString() || '',
+      reportingInCharge: employee.reportingInCharge || '', // Changed from salary
       username: userAccount?.username || employee.employeeId?.toLowerCase() || '',
       password: userAccount?.password || 'password123'
     });
@@ -138,7 +146,7 @@ const Employees = () => {
         email: formData.email.trim().toLowerCase(),
         phone: formData.phone.trim(),
         joinDate: formData.joinDate,
-        salary: parseFloat(formData.salary) || 0,
+        reportingInCharge: formData.reportingInCharge, // Changed from salary
         status: 'Active'
       };
 
@@ -154,7 +162,8 @@ const Employees = () => {
           email: formData.email.trim().toLowerCase(),
           phone: formData.phone.trim(),
           joinDate: formData.joinDate,
-          position: formData.position.trim()
+          position: formData.position.trim(),
+          reportingInCharge: formData.reportingInCharge // Added to profile
         }
       };
 
@@ -203,6 +212,12 @@ const Employees = () => {
     }
   };
 
+  // Helper function to get reporting manager name
+  const getReportingManagerName = (employeeId) => {
+    const manager = employees.find(emp => emp.employeeId === employeeId);
+    return manager ? manager.name : 'Not Assigned';
+  };
+
   const columns = [
     { key: 'employeeId', header: 'Employee ID' },
     { key: 'name', header: 'Name' },
@@ -210,6 +225,13 @@ const Employees = () => {
     { key: 'position', header: 'Position' },
     { key: 'email', header: 'Email' },
     { key: 'phone', header: 'Phone' },
+    { 
+      key: 'reportingInCharge', 
+      header: 'Reporting Manager',
+      render: (reportingInCharge) => (
+        <span>{getReportingManagerName(reportingInCharge)}</span>
+      )
+    },
     { 
       key: 'status', 
       header: 'Status',
@@ -378,16 +400,20 @@ const Employees = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Salary</label>
-                <input
-                  type="number"
-                  name="salary"
+                <label className="form-label">Reporting In-charge</label>
+                <select
+                  name="reportingInCharge"
                   className="form-control"
-                  value={formData.salary}
+                  value={formData.reportingInCharge}
                   onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                />
+                >
+                  <option value="">Select Reporting Manager</option>
+                  {getReportingManagers().map(manager => (
+                    <option key={manager.employeeId} value={manager.employeeId}>
+                      {manager.name} ({manager.employeeId})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-section-header">
@@ -538,16 +564,20 @@ const Employees = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Salary</label>
-                <input
-                  type="number"
-                  name="salary"
+                <label className="form-label">Reporting In-charge</label>
+                <select
+                  name="reportingInCharge"
                   className="form-control"
-                  value={formData.salary}
+                  value={formData.reportingInCharge}
                   onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                />
+                >
+                  <option value="">Select Reporting Manager</option>
+                  {getReportingManagers().map(manager => (
+                    <option key={manager.employeeId} value={manager.employeeId}>
+                      {manager.name} ({manager.employeeId})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-section-header">

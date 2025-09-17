@@ -256,7 +256,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: c(#ff0000,#ffffff);
+  background:radial-gradient(#cd6565,#ffffff) ;
   padding: var(--spacing-lg);
 }
 
@@ -291,7 +291,7 @@
 
 .login-tabs {
   display: flex;
-  background-color: var(--color-gray-100);
+  background-color: #dc3e3e;
   border-radius: var(--radius-lg);
   padding: var(--spacing-xs);
   margin-bottom: var(--spacing-xl);
@@ -310,7 +310,7 @@
 }
 
 .tab-btn.active {
-  background-color: var(--color-surface);
+  background-color: #bf3030;
   color:#ffffff;
   box-shadow: var(--shadow-sm);
 }
@@ -392,7 +392,7 @@
 
 .date-filters select {
   min-width: 150px;
-  background-color:#c55a5a
+  background-color:#ffffff
 }
 
 /* Employee Management Styles */

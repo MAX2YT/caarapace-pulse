@@ -122,12 +122,17 @@
 .form-group {
   margin-bottom: var(--spacing-lg);
 }
-
+#username{
+  color:#000000;
+}
+#password{
+  color:#000000;
+}
 .form-label {
   display: block;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text);
+  color: #000000;
   margin-bottom: var(--spacing-xs);
 }
 
@@ -137,7 +142,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--font-size-base);
-  color: var(--color-text);
+  color: #000000;
   background-color: var();
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -1347,4 +1352,286 @@
   .form-actions {
     flex-direction: column !important;
   }
+}
+/* Leave Request Styles - Add to your main CSS file */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-content {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value--warning {
+  color: var(--color-warning);
+}
+
+.stat-value--positive {
+  color: var(--color-success);
+}
+
+.stat-value--negative {
+  color: var(--color-danger);
+}
+
+.stat-label {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-secondary);
+}
+
+.empty-state p {
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+}
+
+.leave-history {
+  overflow-x: auto;
+}
+
+.leave-history-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--color-gray-50);
+  border-radius: 4px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.leave-history-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s;
+}
+
+.leave-history-row:hover {
+  background-color: var(--color-gray-25);
+}
+
+.history-col {
+  display: flex;
+  align-items: center;
+  min-height: 2rem;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status--approved {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.status--rejected {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.status--pending {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .leave-history-header,
+  .leave-history-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .leave-history-header {
+    display: none;
+  }
+
+  .leave-history-row {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+
+  .history-col {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+  }
+
+  .history-col::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+}
+/* Profile Page Styles - Add to your main CSS file */
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.profile-field {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profile-field:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.profile-label {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.profile-value {
+  font-size: 1rem;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.reporting-manager {
+  background-color: var(--color-gray-50);
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-primary);
+}
+
+.manager-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.manager-details {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.manager-contact {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.role-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-badge--hr {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.role-badge--employee {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.stats-grid-small {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--color-gray-25);
+  border-radius: 6px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stats-grid-small {
+    grid-template-columns: 1fr;
+  }
+
+  .reporting-manager {
+    padding: 0.75rem;
+  }
+
+  .manager-contact {
+    word-break: break-all;
+  }
+}
+
+/* Status styling */
+.status--active {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
