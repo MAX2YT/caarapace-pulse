@@ -4,72 +4,50 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
-  const location = useLocation();
+  const { pathname } = useLocation();
 
-  const handleLogout = () => {
-    logout();
-  };
-
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
-
-  const employeeMenuItems = [
-    { path: '/dashboard', icon: '🏠', label: 'Dashboard' },
-    { path: '/profile', icon: '👤', label: 'Profile' },
-    { path: '/attendance', icon: '📅', label: 'Attendance' },
-    { path: '/leave-request', icon: '📝', label: 'Leave Request' },
-    { path: '/analytics', icon: '📊', label: 'Analytics' }
-  ];
-
-  const hrMenuItems = [
-    { path: '/dashboard', icon: '🏠', label: 'Dashboard' },
-    { path: '/employees', icon: '👥', label: 'Employees' },
-    { path: '/leave-management', icon: '📋', label: 'Leave Management' },
-    { path: '/analytics', icon: '📊', label: 'Analytics' }
-  ];
-
-  const menuItems = user?.role === 'hr' ? hrMenuItems : employeeMenuItems;
+  // Navigation definitions – HR sees Employees, Leave-Management etc.
+  const menu = user?.role === 'hr'
+    ? [
+        { path: '/dashboard',  icon: '🏠', label: 'Dashboard' },
+        { path: '/employees',  icon: '👥', label: 'Employees' },      // ← buttons live here
+        { path: '/leave-management', icon: '📋', label: 'Leave Management' },
+        { path: '/analytics',  icon: '📊', label: 'Analytics' }
+      ]
+    : [
+        { path: '/dashboard',  icon: '🏠', label: 'Dashboard' },
+        { path: '/profile',    icon: '👤', label: 'Profile' },
+        { path: '/attendance', icon: '📅', label: 'Attendance' },
+        { path: '/leave-request', icon: '📝', label: 'Leave Request' },
+        { path: '/analytics',  icon: '📊', label: 'Analytics' }
+      ];
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
-        <div className="logo">
-          <span className="logo-icon">🦀</span>
-          <span className="logo-text">Caarapace</span>
-        </div>
-      </div>
+    <aside className="sidebar">
+      <header className="sidebar-header">
+        <span className="logo-icon">🦀</span>
+        <span className="logo-text">Caarapace</span>
+      </header>
 
       <nav className="sidebar-nav">
-        {menuItems.map((item) => (
+        {menu.map(({ path, icon, label }) => (
           <Link
-            key={item.path}
-            to={item.path}
-            className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+            key={path}
+            to={path}
+            className={`nav-item ${pathname === path ? 'active' : ''}`}
           >
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
+            <span className="nav-icon">{icon}</span>
+            <span className="nav-label">{label}</span>
           </Link>
         ))}
       </nav>
 
-      <div className="sidebar-footer">
-        <div className="user-info">
-          <div className="user-avatar">
-            {user?.profile?.name?.charAt(0) || 'U'}
-          </div>
-          <div className="user-details">
-            <div className="user-name">{user?.profile?.name}</div>
-            <div className="user-role">{user?.role === 'hr' ? 'HR' : 'Employee'}</div>
-          </div>
-        </div>
-
-        <button className="logout-btn" onClick={handleLogout}>
-          <span className="nav-icon">🚪</span>
-          <span className="nav-label">Logout</span>
+      <footer className="sidebar-footer">
+        <button className="logout-btn" onClick={logout}>
+          🚪 Logout
         </button>
-      </div>
-    </div>
+      </footer>
+    </aside>
   );
 };
 

@@ -1,8 +1,8 @@
 // src/utils/storage.js
 
 /**
- * Storage utility functions for Caarapace Pulse Employee Management System
- * Handles localStorage operations for users, employees, attendance, and leave requests
+ * Simple, working storage utility for Caarapace Pulse
+ * This version focuses on making the basic CRUD operations work reliably
  */
 
 export const STORAGE_KEYS = {
@@ -27,6 +27,7 @@ export const getItem = (key) => {
 export const setItem = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    console.log(`✅ Stored ${key}:`, value);
     return true;
   } catch (error) {
     console.error(`Error setting ${key} in localStorage:`, error);
@@ -34,54 +35,37 @@ export const setItem = (key, value) => {
   }
 };
 
-export const removeItem = (key) => {
-  try {
-    localStorage.removeItem(key);
-    return true;
-  } catch (error) {
-    console.error(`Error removing ${key} from localStorage:`, error);
-    return false;
-  }
-};
-
-/**
- * Clears all stored application data from localStorage
- */
-export const clearAllStoredData = () => {
-  Object.values(STORAGE_KEYS).forEach(key => {
-    localStorage.removeItem(key);
-  });
-};
-
-// User Authentication Functions
+// User Functions
 export const getUsers = () => {
   let users = getItem(STORAGE_KEYS.USERS);
   if (!users) {
     users = getSampleUsers();
     setUsers(users);
   }
+  console.log('📚 Getting users:', users);
   return users;
 };
 
-export const setUsers = (users) => setItem(STORAGE_KEYS.USERS, users);
+export const setUsers = (users) => {
+  console.log('💾 Setting users:', users);
+  return setItem(STORAGE_KEYS.USERS, users);
+};
 
-export const getCurrentUser = () => getItem(STORAGE_KEYS.CURRENT_USER);
-
-export const setCurrentUser = (user) => setItem(STORAGE_KEYS.CURRENT_USER, user);
-
-export const clearCurrentUser = () => removeItem(STORAGE_KEYS.CURRENT_USER);
-
-// Employee Management Functions
+// Employee Functions
 export const getEmployees = () => {
   let employees = getItem(STORAGE_KEYS.EMPLOYEES);
   if (!employees) {
     employees = getSampleEmployees();
     setEmployees(employees);
   }
+  console.log('📚 Getting employees:', employees);
   return employees;
 };
 
-export const setEmployees = (employees) => setItem(STORAGE_KEYS.EMPLOYEES, employees);
+export const setEmployees = (employees) => {
+  console.log('💾 Setting employees:', employees);
+  return setItem(STORAGE_KEYS.EMPLOYEES, employees);
+};
 
 // Attendance Functions
 export const getAttendance = () => {
@@ -107,7 +91,14 @@ export const getLeaveRequests = () => {
 
 export const setLeaveRequests = (leaveRequests) => setItem(STORAGE_KEYS.LEAVE_REQUESTS, leaveRequests);
 
-// Sample Data Generators
+// Current User Functions
+export const getCurrentUser = () => getItem(STORAGE_KEYS.CURRENT_USER);
+export const setCurrentUser = (user) => setItem(STORAGE_KEYS.CURRENT_USER, user);
+export const clearCurrentUser = () => {
+  localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+};
+
+// Sample Data
 export const getSampleUsers = () => [
   {
     id: 1,
@@ -155,38 +146,6 @@ export const getSampleUsers = () => [
       phone: '+1-234-567-8903',
       joinDate: '2023-03-20',
       position: 'Marketing Specialist'
-    }
-  },
-  {
-    id: 4,
-    username: 'sarah.wilson',
-    password: 'password123',
-    role: 'employee',
-    employeeId: 'EMP003',
-    profile: {
-      name: 'Sarah Wilson',
-      employeeId: 'EMP003',
-      department: 'Finance',
-      email: 'sarah.wilson@caarapace.com',
-      phone: '+1-234-567-8904',
-      joinDate: '2023-02-10',
-      position: 'Financial Analyst'
-    }
-  },
-  {
-    id: 5,
-    username: 'david.brown',
-    password: 'password123',
-    role: 'employee',
-    employeeId: 'EMP004',
-    profile: {
-      name: 'David Brown',
-      employeeId: 'EMP004',
-      department: 'Engineering',
-      email: 'david.brown@caarapace.com',
-      phone: '+1-234-567-8905',
-      joinDate: '2022-08-15',
-      position: 'Senior Developer'
     }
   }
 ];
@@ -251,69 +210,26 @@ export const getSampleEmployees = () => [
     joinDate: '2022-08-15',
     status: 'Active',
     salary: 90000
-  },
-  {
-    id: 6,
-    name: 'Lisa Garcia',
-    employeeId: 'EMP005',
-    department: 'Sales',
-    email: 'lisa.garcia@caarapace.com',
-    phone: '+1-234-567-8906',
-    position: 'Sales Representative',
-    joinDate: '2023-04-01',
-    status: 'Active',
-    salary: 60000
-  },
-  {
-    id: 7,
-    name: 'Robert Kim',
-    employeeId: 'EMP006',
-    department: 'Operations',
-    email: 'robert.kim@caarapace.com',
-    phone: '+1-234-567-8907',
-    position: 'Operations Manager',
-    joinDate: '2022-11-20',
-    status: 'Active',
-    salary: 80000
   }
 ];
 
 export const getSampleAttendance = () => {
   const attendance = [];
-  const employees = ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005', 'EMP006', 'HR001'];
+  const employees = ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'HR001'];
   const today = new Date();
-  
-  // Generate attendance for last 60 days
-  for (let i = 0; i < 60; i++) {
+
+  for (let i = 0; i < 30; i++) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     const dateString = date.toISOString().split('T')[0];
-    
-    // Skip weekends
+
     if (date.getDay() === 0 || date.getDay() === 6) continue;
-    
+
     employees.forEach((empId) => {
-      // 92% chance of being present
-      const isPresent = Math.random() > 0.08;
-      const checkInHour = 8 + Math.floor(Math.random() * 2); // 8-9 AM
-      const checkInMinute = Math.floor(Math.random() * 60);
-      const checkOutHour = 17 + Math.floor(Math.random() * 2); // 5-6 PM
-      const checkOutMinute = Math.floor(Math.random() * 60);
-      
-      const checkInTime = isPresent ? 
-        `${checkInHour.toString().padStart(2, '0')}:${checkInMinute.toString().padStart(2, '0')}` : 
-        null;
-      const checkOutTime = isPresent ? 
-        `${checkOutHour.toString().padStart(2, '0')}:${checkOutMinute.toString().padStart(2, '0')}` : 
-        null;
-      
-      let hoursWorked = 0;
-      if (isPresent && checkInTime && checkOutTime) {
-        const checkIn = new Date(`${dateString}T${checkInTime}`);
-        const checkOut = new Date(`${dateString}T${checkOutTime}`);
-        hoursWorked = Math.round(((checkOut - checkIn) / (1000 * 60 * 60)) * 100) / 100;
-      }
-      
+      const isPresent = Math.random() > 0.1;
+      const checkInTime = isPresent ? `0${8 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}` : null;
+      const checkOutTime = isPresent ? `${17 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}` : null;
+
       attendance.push({
         id: `${empId}_${dateString}`,
         employeeId: empId,
@@ -321,12 +237,12 @@ export const getSampleAttendance = () => {
         status: isPresent ? 'Present' : 'Absent',
         checkIn: checkInTime,
         checkOut: checkOutTime,
-        hoursWorked: hoursWorked,
+        hoursWorked: isPresent ? 8 + (Math.random() * 2 - 1) : 0,
         breakTime: isPresent ? 1 : 0
       });
     });
   }
-  
+
   return attendance.sort((a, b) => new Date(b.date) - new Date(a.date));
 };
 
@@ -352,176 +268,105 @@ export const getSampleLeaveRequests = () => [
     leaveType: 'Sick Leave',
     startDate: '2025-09-20',
     endDate: '2025-09-22',
-    reason: 'Medical appointment and recovery',
+    reason: 'Medical appointment',
     status: 'Approved',
     appliedDate: '2025-09-08',
-    hrComments: 'Approved for medical reasons. Please provide medical certificate upon return.',
+    hrComments: 'Approved',
     approvedBy: 'Jane Smith',
     approvedDate: '2025-09-09'
-  },
-  {
-    id: 3,
-    employeeId: 'EMP003',
-    employeeName: 'Sarah Wilson',
-    leaveType: 'Personal Leave',
-    startDate: '2025-10-01',
-    endDate: '2025-10-01',
-    reason: 'Personal matters',
-    status: 'Rejected',
-    appliedDate: '2025-09-05',
-    hrComments: 'Unable to approve due to project deadlines. Please reschedule.',
-    approvedBy: 'Jane Smith',
-    approvedDate: '2025-09-06'
-  },
-  {
-    id: 4,
-    employeeId: 'EMP004',
-    employeeName: 'David Brown',
-    leaveType: 'Annual Leave',
-    startDate: '2025-10-15',
-    endDate: '2025-10-20',
-    reason: 'Wedding anniversary celebration',
-    status: 'Pending',
-    appliedDate: '2025-09-12',
-    hrComments: '',
-    approvedBy: '',
-    approvedDate: ''
   }
 ];
 
-// Constants
-export const DEPARTMENTS = [
-  'Engineering',
-  'Human Resources',
-  'Marketing',
-  'Finance',
-  'Sales',
-  'Operations',
-  'Customer Support',
-  'Quality Assurance'
-];
-
-export const LEAVE_TYPES = [
-  'Annual Leave',
-  'Sick Leave',
-  'Personal Leave',
-  'Maternity/Paternity Leave',
-  'Emergency Leave',
-  'Bereavement Leave',
-  'Study Leave'
-];
-
-export const EMPLOYEE_STATUSES = [
-  'Active',
-  'Inactive',
-  'Terminated',
-  'On Leave'
-];
-
-export const LEAVE_STATUSES = [
-  'Pending',
-  'Approved',
-  'Rejected'
-];
-
-// Helper Functions for Employee Management
-export const getEmployeeById = (employeeId) => {
-  const employees = getEmployees();
-  return employees.find(emp => emp.employeeId === employeeId);
-};
-
-export const getAttendanceByEmployee = (employeeId) => {
-  const attendance = getAttendance();
-  return attendance.filter(record => record.employeeId === employeeId);
-};
-
-export const getLeaveRequestsByEmployee = (employeeId) => {
-  const leaveRequests = getLeaveRequests();
-  return leaveRequests.filter(request => request.employeeId === employeeId);
-};
-
-export const getUserByEmployeeId = (employeeId) => {
-  const users = getUsers();
-  return users.find(user => user.employeeId === employeeId);
-};
-
-export const getUserByUsername = (username) => {
-  const users = getUsers();
-  return users.find(user => user.username === username);
-};
-
-// Employee CRUD Operations
+// Helper Functions - These are the ones being called by your components
 export const addEmployee = (employee) => {
+  console.log('🔄 Storage: Adding employee:', employee);
   const employees = getEmployees();
   const newEmployee = {
     ...employee,
-    id: Math.max(...employees.map(e => e.id || 0), 0) + 1,
-    status: employee.status || 'Active'
+    id: Math.max(...employees.map(e => e.id || 0), 0) + 1
   };
   employees.push(newEmployee);
-  setEmployees(employees);
+  const success = setEmployees(employees);
+  console.log('✅ Storage: Employee added, success:', success);
   return newEmployee;
 };
 
 export const updateEmployee = (employeeId, updates) => {
+  console.log('🔄 Storage: Updating employee:', employeeId, updates);
   const employees = getEmployees();
   const index = employees.findIndex(emp => emp.employeeId === employeeId);
   if (index !== -1) {
     employees[index] = { ...employees[index], ...updates };
-    setEmployees(employees);
+    const success = setEmployees(employees);
+    console.log('✅ Storage: Employee updated, success:', success);
     return employees[index];
   }
+  console.log('❌ Storage: Employee not found for update');
   return null;
 };
 
 export const deleteEmployee = (employeeId) => {
+  console.log('🔄 Storage: Deleting employee:', employeeId);
   const employees = getEmployees();
-  const updatedEmployees = employees.filter(emp => emp.employeeId !== employeeId);
-  setEmployees(updatedEmployees);
+  const filtered = employees.filter(emp => emp.employeeId !== employeeId);
+  const success = setEmployees(filtered);
+  console.log('✅ Storage: Employee deleted, success:', success);
+
+  // Also clean up related data
+  const attendance = getAttendance();
+  const filteredAttendance = attendance.filter(record => record.employeeId !== employeeId);
+  setAttendance(filteredAttendance);
+
+  const leaveRequests = getLeaveRequests();
+  const filteredLeaveRequests = leaveRequests.filter(req => req.employeeId !== employeeId);
+  setLeaveRequests(filteredLeaveRequests);
+
   return true;
 };
 
-// User Account CRUD Operations
 export const addUser = (userData) => {
+  console.log('🔄 Storage: Adding user:', userData);
   const users = getUsers();
   const newUser = {
     ...userData,
     id: Math.max(...users.map(u => u.id || 0), 0) + 1
   };
   users.push(newUser);
-  setUsers(users);
+  const success = setUsers(users);
+  console.log('✅ Storage: User added, success:', success);
   return newUser;
 };
 
 export const updateUser = (employeeId, updates) => {
+  console.log('🔄 Storage: Updating user:', employeeId, updates);
   const users = getUsers();
   const index = users.findIndex(user => user.employeeId === employeeId);
   if (index !== -1) {
     users[index] = { ...users[index], ...updates };
-    setUsers(users);
+    const success = setUsers(users);
+    console.log('✅ Storage: User updated, success:', success);
     return users[index];
   }
+  console.log('❌ Storage: User not found for update');
   return null;
 };
 
 export const deleteUser = (employeeId) => {
+  console.log('🔄 Storage: Deleting user:', employeeId);
   const users = getUsers();
-  const updatedUsers = users.filter(user => user.employeeId !== employeeId);
-  setUsers(updatedUsers);
+  const filtered = users.filter(user => user.employeeId !== employeeId);
+  const success = setUsers(filtered);
+  console.log('✅ Storage: User deleted, success:', success);
   return true;
 };
 
-// Leave Request CRUD Operations
 export const addLeaveRequest = (leaveRequest) => {
   const leaveRequests = getLeaveRequests();
   const newRequest = {
     ...leaveRequest,
     id: Math.max(...leaveRequests.map(r => r.id || 0), 0) + 1,
     status: 'Pending',
-    appliedDate: new Date().toISOString().split('T')[0],
-    hrComments: '',
-    approvedBy: '',
-    approvedDate: ''
+    appliedDate: new Date().toISOString().split('T')[0]
   };
   leaveRequests.push(newRequest);
   setLeaveRequests(leaveRequests);
@@ -537,216 +382,4 @@ export const updateLeaveRequest = (requestId, updates) => {
     return leaveRequests[index];
   }
   return null;
-};
-
-export const deleteLeaveRequest = (requestId) => {
-  const leaveRequests = getLeaveRequests();
-  const updatedRequests = leaveRequests.filter(req => req.id !== requestId);
-  setLeaveRequests(updatedRequests);
-  return true;
-};
-
-// Attendance CRUD Operations
-export const addAttendanceRecord = (attendanceRecord) => {
-  const attendance = getAttendance();
-  const newRecord = {
-    ...attendanceRecord,
-    id: `${attendanceRecord.employeeId}_${attendanceRecord.date}`
-  };
-  
-  // Check if record already exists
-  const existingIndex = attendance.findIndex(record => record.id === newRecord.id);
-  if (existingIndex !== -1) {
-    // Update existing record
-    attendance[existingIndex] = newRecord;
-  } else {
-    // Add new record
-    attendance.push(newRecord);
-  }
-  
-  setAttendance(attendance);
-  return newRecord;
-};
-
-export const updateAttendanceRecord = (recordId, updates) => {
-  const attendance = getAttendance();
-  const index = attendance.findIndex(record => record.id === recordId);
-  if (index !== -1) {
-    attendance[index] = { ...attendance[index], ...updates };
-    setAttendance(attendance);
-    return attendance[index];
-  }
-  return null;
-};
-
-export const deleteAttendanceRecord = (recordId) => {
-  const attendance = getAttendance();
-  const updatedAttendance = attendance.filter(record => record.id !== recordId);
-  setAttendance(updatedAttendance);
-  return true;
-};
-
-// Bulk Operations
-export const deleteAllEmployeeRecords = (employeeId) => {
-  // Delete employee
-  deleteEmployee(employeeId);
-  
-  // Delete user account
-  deleteUser(employeeId);
-  
-  // Delete all attendance records
-  const attendance = getAttendance();
-  const updatedAttendance = attendance.filter(record => record.employeeId !== employeeId);
-  setAttendance(updatedAttendance);
-  
-  // Delete all leave requests
-  const leaveRequests = getLeaveRequests();
-  const updatedLeaveRequests = leaveRequests.filter(request => request.employeeId !== employeeId);
-  setLeaveRequests(updatedLeaveRequests);
-  
-  return true;
-};
-
-// Statistics and Analytics Functions
-export const getEmployeeStatistics = () => {
-  const employees = getEmployees();
-  const users = getUsers();
-  const attendance = getAttendance();
-  const leaveRequests = getLeaveRequests();
-  
-  return {
-    totalEmployees: employees.length,
-    activeEmployees: employees.filter(emp => emp.status === 'Active').length,
-    totalUsers: users.length,
-    employeeUsers: users.filter(user => user.role === 'employee').length,
-    hrUsers: users.filter(user => user.role === 'hr').length,
-    totalAttendanceRecords: attendance.length,
-    totalLeaveRequests: leaveRequests.length,
-    pendingLeaveRequests: leaveRequests.filter(req => req.status === 'Pending').length,
-    approvedLeaveRequests: leaveRequests.filter(req => req.status === 'Approved').length,
-    rejectedLeaveRequests: leaveRequests.filter(req => req.status === 'Rejected').length
-  };
-};
-
-export const getDepartmentStatistics = () => {
-  const employees = getEmployees();
-  const departmentStats = {};
-  
-  employees.forEach(employee => {
-    const dept = employee.department;
-    if (!departmentStats[dept]) {
-      departmentStats[dept] = {
-        totalEmployees: 0,
-        activeEmployees: 0,
-        averageSalary: 0,
-        totalSalary: 0
-      };
-    }
-    
-    departmentStats[dept].totalEmployees++;
-    if (employee.status === 'Active') {
-      departmentStats[dept].activeEmployees++;
-    }
-    if (employee.salary) {
-      departmentStats[dept].totalSalary += employee.salary;
-    }
-  });
-  
-  // Calculate average salaries
-  Object.keys(departmentStats).forEach(dept => {
-    const stats = departmentStats[dept];
-    if (stats.totalEmployees > 0) {
-      stats.averageSalary = Math.round(stats.totalSalary / stats.totalEmployees);
-    }
-  });
-  
-  return departmentStats;
-};
-
-// Data Validation Functions
-export const validateEmployeeData = (employeeData) => {
-  const errors = {};
-  
-  if (!employeeData.name || employeeData.name.trim().length === 0) {
-    errors.name = 'Name is required';
-  }
-  
-  if (!employeeData.employeeId || employeeData.employeeId.trim().length === 0) {
-    errors.employeeId = 'Employee ID is required';
-  }
-  
-  if (!employeeData.email || employeeData.email.trim().length === 0) {
-    errors.email = 'Email is required';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employeeData.email)) {
-    errors.email = 'Invalid email format';
-  }
-  
-  if (!employeeData.department) {
-    errors.department = 'Department is required';
-  }
-  
-  if (!employeeData.position || employeeData.position.trim().length === 0) {
-    errors.position = 'Position is required';
-  }
-  
-  return errors;
-};
-
-export const validateUserData = (userData) => {
-  const errors = {};
-  
-  if (!userData.username || userData.username.trim().length === 0) {
-    errors.username = 'Username is required';
-  }
-  
-  if (!userData.password || userData.password.length < 6) {
-    errors.password = 'Password must be at least 6 characters';
-  }
-  
-  if (!userData.employeeId || userData.employeeId.trim().length === 0) {
-    errors.employeeId = 'Employee ID is required';
-  }
-  
-  return errors;
-};
-
-// Data Migration and Backup Functions
-export const exportAllData = () => {
-  return {
-    users: getUsers(),
-    employees: getEmployees(),
-    attendance: getAttendance(),
-    leaveRequests: getLeaveRequests(),
-    exportDate: new Date().toISOString(),
-    version: '1.0'
-  };
-};
-
-export const importAllData = (data) => {
-  try {
-    if (data.users) setUsers(data.users);
-    if (data.employees) setEmployees(data.employees);
-    if (data.attendance) setAttendance(data.attendance);
-    if (data.leaveRequests) setLeaveRequests(data.leaveRequests);
-    return true;
-  } catch (error) {
-    console.error('Error importing data:', error);
-    return false;
-  }
-};
-
-// Initialize sample data if not exists
-export const initializeSampleData = () => {
-  if (!getItem(STORAGE_KEYS.USERS)) {
-    setUsers(getSampleUsers());
-  }
-  if (!getItem(STORAGE_KEYS.EMPLOYEES)) {
-    setEmployees(getSampleEmployees());
-  }
-  if (!getItem(STORAGE_KEYS.ATTENDANCE)) {
-    setAttendance(getSampleAttendance());
-  }
-  if (!getItem(STORAGE_KEYS.LEAVE_REQUESTS)) {
-    setLeaveRequests(getSampleLeaveRequests());
-  }
 };

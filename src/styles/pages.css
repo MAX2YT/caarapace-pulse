@@ -256,12 +256,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
+  background-color: c(#ff0000,#ffffff);
   padding: var(--spacing-lg);
 }
 
 .login-card {
-  background-color: #BE0000;
+  background-color: #e3575756;
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-xl);
   padding: var(--spacing-2xl);

@@ -1,14 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   getEmployees, 
-  setEmployees, 
-  getAttendance, 
-  setAttendance,
-  getLeaveRequests,
-  setLeaveRequests,
   getUsers,
-  setUsers,
+  getAttendance, 
+  getLeaveRequests,
+  setAttendance,
   addEmployee as addEmployeeToStorage,
+  updateEmployee as updateEmployeeInStorage,
+  deleteEmployee as deleteEmployeeFromStorage,
+  addUser as addUserToStorage,
+  updateUser as updateUserInStorage,
+  deleteUser as deleteUserFromStorage,
   addLeaveRequest as addLeaveRequestToStorage,
   updateLeaveRequest as updateLeaveRequestInStorage
 } from '../utils/storage';
@@ -25,147 +27,156 @@ export const useData = () => {
 
 export const DataProvider = ({ children }) => {
   const [employees, setEmployeesState] = useState([]);
+  const [users, setUsersState] = useState([]);
   const [attendance, setAttendanceState] = useState([]);
   const [leaveRequests, setLeaveRequestsState] = useState([]);
-  const [users, setUsersState] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  useEffect(() => {
-    // Load initial data
-    setEmployeesState(getEmployees());
-    setAttendanceState(getAttendance());
-    setLeaveRequestsState(getLeaveRequests());
-    setUsersState(getUsers());
-  }, []);
+  // Force refresh all data
+  const refreshAllData = () => {
+    console.log('🔄 DataContext: Refreshing all data...');
+    const freshEmployees = getEmployees();
+    const freshUsers = getUsers();
+    const freshAttendance = getAttendance();
+    const freshLeaveRequests = getLeaveRequests();
 
-  // Force refresh function
-  const forceRefresh = () => {
+    setEmployeesState(freshEmployees);
+    setUsersState(freshUsers);
+    setAttendanceState(freshAttendance);
+    setLeaveRequestsState(freshLeaveRequests);
     setRefreshTrigger(prev => prev + 1);
-    setEmployeesState(getEmployees());
-    setAttendanceState(getAttendance());
-    setLeaveRequestsState(getLeaveRequests());
-    setUsersState(getUsers());
+
+    console.log('✅ DataContext: Data refreshed', {
+      employees: freshEmployees.length,
+      users: freshUsers.length,
+      attendance: freshAttendance.length,
+      leaveRequests: freshLeaveRequests.length
+    });
   };
 
-  // User Management Functions
-  const addUser = (userData) => {
-    try {
-      const currentUsers = getUsers();
-      const newUser = {
-        ...userData,
-        id: Math.max(...currentUsers.map(u => u.id || 0), 0) + 1
-      };
-
-      const updatedUsers = [...currentUsers, newUser];
-      setUsers(updatedUsers);
-      setUsersState(updatedUsers);
-
-      return newUser;
-    } catch (error) {
-      console.error('Error adding user:', error);
-      throw error;
-    }
-  };
-
-  const updateUser = (employeeId, userData) => {
-    try {
-      const currentUsers = getUsers();
-      const updatedUsers = currentUsers.map(user => 
-        user.employeeId === employeeId ? { ...user, ...userData } : user
-      );
-
-      setUsers(updatedUsers);
-      setUsersState(updatedUsers);
-
-      return updatedUsers.find(user => user.employeeId === employeeId);
-    } catch (error) {
-      console.error('Error updating user:', error);
-      throw error;
-    }
-  };
-
-  const deleteUser = (employeeId) => {
-    try {
-      const currentUsers = getUsers();
-      const updatedUsers = currentUsers.filter(user => user.employeeId !== employeeId);
-
-      setUsers(updatedUsers);
-      setUsersState(updatedUsers);
-
-      return true;
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      throw error;
-    }
-  };
+  useEffect(() => {
+    console.log('🚀 DataContext: Initial data load...');
+    refreshAllData();
+  }, []);
 
   // Employee Management Functions
   const addEmployee = (employeeData) => {
+    console.log('📝 DataContext: Adding employee:', employeeData);
     try {
       const newEmployee = addEmployeeToStorage(employeeData);
-      setEmployeesState(getEmployees());
+      console.log('✅ DataContext: Employee added to storage');
+
+      // Force immediate refresh
+      setTimeout(() => {
+        refreshAllData();
+      }, 100);
+
       return newEmployee;
     } catch (error) {
-      console.error('Error adding employee:', error);
+      console.error('❌ DataContext: Error adding employee:', error);
       throw error;
     }
   };
 
   const updateEmployee = (employeeId, employeeData) => {
+    console.log('📝 DataContext: Updating employee:', employeeId, employeeData);
     try {
-      const currentEmployees = getEmployees();
-      const updatedEmployees = currentEmployees.map(emp => 
-        emp.employeeId === employeeId ? { ...emp, ...employeeData } : emp
-      );
+      const updatedEmployee = updateEmployeeInStorage(employeeId, employeeData);
+      console.log('✅ DataContext: Employee updated in storage');
 
-      setEmployees(updatedEmployees);
-      setEmployeesState(updatedEmployees);
+      // Force immediate refresh
+      setTimeout(() => {
+        refreshAllData();
+      }, 100);
 
-      return updatedEmployees.find(emp => emp.employeeId === employeeId);
+      return updatedEmployee;
     } catch (error) {
-      console.error('Error updating employee:', error);
+      console.error('❌ DataContext: Error updating employee:', error);
       throw error;
     }
   };
 
   const deleteEmployee = (employeeId) => {
+    console.log('📝 DataContext: Deleting employee:', employeeId);
     try {
-      // Delete employee
-      const currentEmployees = getEmployees();
-      const updatedEmployees = currentEmployees.filter(emp => emp.employeeId !== employeeId);
-      setEmployees(updatedEmployees);
-      setEmployeesState(updatedEmployees);
+      deleteEmployeeFromStorage(employeeId);
+      console.log('✅ DataContext: Employee deleted from storage');
 
-      // Delete all attendance records for this employee
-      const currentAttendance = getAttendance();
-      const updatedAttendance = currentAttendance.filter(record => record.employeeId !== employeeId);
-      setAttendance(updatedAttendance);
-      setAttendanceState(updatedAttendance);
-
-      // Delete all leave requests for this employee
-      const currentLeaveRequests = getLeaveRequests();
-      const updatedLeaveRequests = currentLeaveRequests.filter(request => request.employeeId !== employeeId);
-      setLeaveRequests(updatedLeaveRequests);
-      setLeaveRequestsState(updatedLeaveRequests);
+      // Force immediate refresh
+      setTimeout(() => {
+        refreshAllData();
+      }, 100);
 
       return true;
     } catch (error) {
-      console.error('Error deleting employee:', error);
+      console.error('❌ DataContext: Error deleting employee:', error);
       throw error;
     }
   };
 
-  // Check-in functionality
+  // User Management Functions
+  const addUser = (userData) => {
+    console.log('📝 DataContext: Adding user:', userData);
+    try {
+      const newUser = addUserToStorage(userData);
+      console.log('✅ DataContext: User added to storage');
+
+      // Force immediate refresh
+      setTimeout(() => {
+        refreshAllData();
+      }, 100);
+
+      return newUser;
+    } catch (error) {
+      console.error('❌ DataContext: Error adding user:', error);
+      throw error;
+    }
+  };
+
+  const updateUser = (employeeId, userData) => {
+    console.log('📝 DataContext: Updating user:', employeeId, userData);
+    try {
+      const updatedUser = updateUserInStorage(employeeId, userData);
+      console.log('✅ DataContext: User updated in storage');
+
+      // Force immediate refresh
+      setTimeout(() => {
+        refreshAllData();
+      }, 100);
+
+      return updatedUser;
+    } catch (error) {
+      console.error('❌ DataContext: Error updating user:', error);
+      throw error;
+    }
+  };
+
+  const deleteUser = (employeeId) => {
+    console.log('📝 DataContext: Deleting user:', employeeId);
+    try {
+      deleteUserFromStorage(employeeId);
+      console.log('✅ DataContext: User deleted from storage');
+
+      // Force immediate refresh
+      setTimeout(() => {
+        refreshAllData();
+      }, 100);
+
+      return true;
+    } catch (error) {
+      console.error('❌ DataContext: Error deleting user:', error);
+      throw error;
+    }
+  };
+
+  // Attendance Functions
   const checkIn = async (employeeId) => {
     try {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
       const currentTime = now.toTimeString().slice(0, 5);
 
-      // Get fresh attendance data
       const currentAttendance = getAttendance();
-
-      // Check if already checked in today
       const existingRecord = currentAttendance.find(
         record => record.employeeId === employeeId && record.date === today
       );
@@ -178,38 +189,19 @@ export const DataProvider = ({ children }) => {
       let record;
 
       if (existingRecord) {
-        // Update existing record
-        record = {
-          ...existingRecord,
-          checkIn: currentTime,
-          checkOut: null,
-          status: 'Present',
-          hoursWorked: 0
-        };
-        updatedAttendance = currentAttendance.map(r => 
-          r.id === existingRecord.id ? record : r
-        );
+        record = { ...existingRecord, checkIn: currentTime, checkOut: null, status: 'Present', hoursWorked: 0 };
+        updatedAttendance = currentAttendance.map(r => r.id === existingRecord.id ? record : r);
       } else {
-        // Create new record
         record = {
           id: `${employeeId}_${today}`,
-          employeeId,
-          date: today,
-          status: 'Present',
-          checkIn: currentTime,
-          checkOut: null,
-          hoursWorked: 0,
-          breakTime: 0
+          employeeId, date: today, status: 'Present',
+          checkIn: currentTime, checkOut: null, hoursWorked: 0, breakTime: 0
         };
         updatedAttendance = [...currentAttendance, record];
       }
 
-      // Save to localStorage and update state
       setAttendance(updatedAttendance);
-      setAttendanceState(updatedAttendance);
-      forceRefresh();
-
-      console.log('Check-in successful:', record);
+      refreshAllData();
       return { success: true, record };
     } catch (error) {
       console.error('Check-in error:', error);
@@ -217,17 +209,13 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Check-out functionality
   const checkOut = async (employeeId) => {
     try {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
       const currentTime = now.toTimeString().slice(0, 5);
 
-      // Get fresh attendance data
       const currentAttendance = getAttendance();
-
-      // Find today's record
       const todayRecord = currentAttendance.find(
         record => record.employeeId === employeeId && record.date === today
       );
@@ -240,7 +228,6 @@ export const DataProvider = ({ children }) => {
         return { success: false, message: 'Already checked out today' };
       }
 
-      // Calculate hours worked
       const checkInTime = new Date(`${today}T${todayRecord.checkIn}`);
       const checkOutTime = new Date(`${today}T${currentTime}`);
       const hoursWorked = (checkOutTime - checkInTime) / (1000 * 60 * 60);
@@ -255,12 +242,8 @@ export const DataProvider = ({ children }) => {
         r.id === todayRecord.id ? updatedRecord : r
       );
 
-      // Save to localStorage and update state
       setAttendance(updatedAttendance);
-      setAttendanceState(updatedAttendance);
-      forceRefresh();
-
-      console.log('Check-out successful:', updatedRecord);
+      refreshAllData();
       return { success: true, record: updatedRecord };
     } catch (error) {
       console.error('Check-out error:', error);
@@ -268,11 +251,8 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Get current status for an employee
   const getCurrentStatus = (employeeId) => {
     const today = new Date().toISOString().split('T')[0];
-
-    // Always get fresh data from localStorage
     const freshAttendance = getAttendance();
     const todayRecord = freshAttendance.find(
       record => record.employeeId === employeeId && record.date === today
@@ -284,7 +264,6 @@ export const DataProvider = ({ children }) => {
     };
   };
 
-  // Get all employee statuses (for HR dashboard)
   const getAllEmployeeStatuses = () => {
     const today = new Date().toISOString().split('T')[0];
     const freshAttendance = getAttendance();
@@ -305,35 +284,55 @@ export const DataProvider = ({ children }) => {
     });
   };
 
+  // Leave request functions
   const addLeaveRequest = (requestData) => {
-    const newRequest = addLeaveRequestToStorage(requestData);
-    setLeaveRequestsState(getLeaveRequests());
-    return newRequest;
+    try {
+      const newRequest = addLeaveRequestToStorage(requestData);
+      refreshAllData();
+      return newRequest;
+    } catch (error) {
+      console.error('Error adding leave request:', error);
+      throw error;
+    }
   };
 
   const updateLeaveRequest = (requestId, updates) => {
-    const updatedRequest = updateLeaveRequestInStorage(requestId, updates);
-    setLeaveRequestsState(getLeaveRequests());
-    return updatedRequest;
+    try {
+      const updatedRequest = updateLeaveRequestInStorage(requestId, updates);
+      refreshAllData();
+      return updatedRequest;
+    } catch (error) {
+      console.error('Error updating leave request:', error);
+      throw error;
+    }
   };
+
+  console.log('🔄 DataContext: Rendering with data:', {
+    employees: employees.length,
+    users: users.length,
+    attendance: attendance.length,
+    leaveRequests: leaveRequests.length,
+    refreshTrigger
+  });
 
   const value = {
     employees,
+    users,
     attendance,
     leaveRequests,
-    users,
-    checkIn,
-    checkOut,
-    getCurrentStatus,
-    getAllEmployeeStatuses,
     addEmployee,
     updateEmployee,
     deleteEmployee,
     addUser,
     updateUser,
     deleteUser,
+    checkIn,
+    checkOut,
+    getCurrentStatus,
+    getAllEmployeeStatuses,
     addLeaveRequest,
     updateLeaveRequest,
+    refreshAllData,
     refreshTrigger
   };
 
